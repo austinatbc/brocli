@@ -23,8 +23,9 @@ chrome.runtime.onMessage.addListener(
 });
 
 // directly from addressbar
-chrome.webNavigation.onBeforeNavigate.addListener(
-    function(details) {
+chrome.webNavigation.onBeforeNavigate.addListener(function(details) {
+    chrome.storage.local.get("executeFromAddressbar", function (items) {
+        var executeFromAddressbar = items.executeFromAddressbar;   
         if (!executeFromAddressbar)
             return
             
@@ -36,8 +37,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(
         {
             Executer.executeAll(query.split(' '));
         }
-    }, {url: [{urlContains: defaultSearchPath}]}
-);
+    });
+}, {url: [{urlContains: defaultSearchPath}]});
 
 // keyboard shortcuts
 chrome.commands.onCommand.addListener(function(command) {

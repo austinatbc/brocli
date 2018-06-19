@@ -2,6 +2,40 @@
  * config.js -- Dynamic extension or configuration variables and objected defined and initialized here
  */
 
+var storageHelper = (function(){
+    
+    var settingKeys = [
+        "executeFromAddressbar",
+        "defaultSearchUrl",
+        "brocliCommandFolderId"
+    ];
+
+    var settings = [];
+    
+    var loadSettings = function () {
+        var s;
+        settingKeys.forEach(function(el){
+            chrome.storage.local.get(el, function(items){
+                if (items[el])
+                    settings.push({el: items[el]});
+                else
+                    settings.push({el: undefined});
+            });
+        });
+    }
+
+    var getSetting = function(key) {
+        return settings[key];
+    }
+    
+    return {
+        loadSettings: loadSettings,
+        getSetting: getSetting
+    }
+
+})();
+
+storageHelper.loadSettings();
 chrome.omnibox.setDefaultSuggestion({description: "<url><match>Welcome to Brocli!</match></url><dim> - Enter <match>-h</match> to go to docs. Enter <match>-cmds</match> to see a list of commands. Enter <match>-k</match> to set keyboard shortcuts.</dim>"});
 
 // for getting website field value
@@ -12,11 +46,13 @@ var extensionId = chrome.runtime.id;
 var outputPageUrl = "chrome-extension://"+ extensionId +"/output.html";
 
 // default search -- for executing commands without keyword
-var defaultSearch = new URL("https://www.google.com/search?q=%s&{google:RLZ}{google:originalQueryForSuggestion}{google:assistedQueryStats}{google:searchFieldtrialParameter}{google:iOSSearchLanguage}{google:searchClient}{google:sourceId}{google:instantExtendedEnabledParameter}{google:contextualSearchVersion}ie={inputEncoding}");
+var defaultSearch = new URL(storageHelper.getSetting("defaultSearchUrl"));
 
-// used on events .js to filter
+// used on events.js
 var defaultSearchPath = defaultSearch.origin + defaultSearch.pathname;
 var defaultSearchUrl = defaultSearch.href;
+
+// use on events.js
 var searchParam = getParams(defaultSearch.href)['%s'];
 
 // links and folders in this folder used to create custom bookmark commands

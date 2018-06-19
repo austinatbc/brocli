@@ -2,8 +2,10 @@ var settings = (function(){
 
     var saveAll = function() {
         $('.brocli-setting').each(function(i, el){
-            chrome.storage.local.set({[el.id]: el.checked || el.value}, function() {
-            });
+            if (el.type == "text")
+                chrome.storage.local.set({[el.id]: el.value}, function() {});
+            else
+                chrome.storage.local.set({[el.id]: el.checked}, function() {});
         });
     };
 

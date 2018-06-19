@@ -90,20 +90,7 @@ webParser.on(0, function (value) {
         refreshCommandNode();
     var url = getBookmarkCommandUrl(commands, 0, commandNode);
     if (url)
-    {
-        goTo(url);
-    } else {
-        chrome.bookmarks.search(value, function(results){
-            var bookmarkFound = false;
-            results.forEach(function(res){
-                if (res.title.split(" ")[0] == value)
-                {
-                    bookmarkFound = true;
-                    goTo(res.url);
-                }
-            });
-        });
-    }
+        options.paths.push(url);
 });
 
 webParser.on('*', function (name, value) {
