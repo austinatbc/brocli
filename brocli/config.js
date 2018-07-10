@@ -12,16 +12,33 @@ var storageHelper = (function(){
 
     var settings = [];
     
-    var loadSettings = function () {
+    var loadSettings = function (callback) {
         var s;
         settingKeys.forEach(function(el){
             chrome.storage.local.get(el, function(items){
-                if (items[el])
+                if (items[el]) {
                     settings.push({el: items[el]});
-                else
+                    if (typeof callback == "function")
+                        callback({key: el, value: items[el]})
+                } else {
                     settings.push({el: undefined});
+                } 
             });
         });
+    }
+
+    var onSettingLoaded = function (settingObject) {
+        var key = settingObject.key;
+        var val = settingObject.value;
+        switch(key)
+        {
+            case "defaultSearchUrl":
+                var defaultSearch = new URL(val);
+                settings.push({defaultSearchPath: defaultSearch.origin + defaultSearch.pathname});
+                settings.push({defaultSearchUrl: defaultSearch.href});
+                settings.push({searchParam:  getParams(defaultSearch.href)['%s']});
+                break;
+        }
     }
 
     var getSetting = function(key) {
@@ -45,15 +62,7 @@ var zdDomain = 'https://americommerce.zendesk.com';
 var extensionId = chrome.runtime.id;
 var outputPageUrl = "chrome-extension://"+ extensionId +"/output.html";
 
-// default search -- for executing commands without keyword
-var defaultSearch = new URL(storageHelper.getSetting("defaultSearchUrl"));
 
-// used on events.js
-var defaultSearchPath = defaultSearch.origin + defaultSearch.pathname;
-var defaultSearchUrl = defaultSearch.href;
-
-// use on events.js
-var searchParam = getParams(defaultSearch.href)['%s'];
 
 // links and folders in this folder used to create custom bookmark commands
 var defaultCommandFolder = "BrocliCommands";
@@ -99,7 +108,7 @@ function getBookmarkCommandUrl (commands, index, node) {
     if (node && commands && index >= 0) {
         var child = node.children.find(function(element){
             // returns element that matches to child var. Doesn't return this method.
-            return element.title.toLowerCase() == commands[index].toLowerCase();
+            return element.title.split(" ")[0].toLowerCase() == commands[index].toLowerCase();
         });
         return getBookmarkCommandUrl(commands, index+1, child);
     }

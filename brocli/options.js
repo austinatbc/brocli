@@ -8,8 +8,8 @@ var settings = (function(){
                 chrome.storage.local.set({[el.id]: el.checked}, function() {});
         });
     };
-
-    var loadAll = function() {
+    
+    var loadAll = function(callback) {
         $('.brocli-setting').each(function(i, el){
             chrome.storage.local.get(el.id, function (items) {
                 if (el.type == "text")
@@ -18,8 +18,10 @@ var settings = (function(){
                     el.checked = items[el.id];
             });  
         });
-    };
-
+    }
+    
+    $('').each
+    
     return {
         save: saveAll,
         load: loadAll
